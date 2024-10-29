@@ -16,7 +16,11 @@ function App() {
               X: parseFloat(row.X) || 0,
               Y: parseFloat(row.Y) || 0,
               Radius: parseFloat(row.Radius) || 10,
-              Cluster: row.Cluster || '0'
+              Cluster: row.Cluster || '0',
+              Entity: row.Entity || '',
+              Website: row.Website || '#',
+              Contact: row.Contact || '',
+              "Contact Email": row["Contact Email"] || ''
             }));
             setData(parsedData);
           }

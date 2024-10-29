@@ -1,13 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 
 function D3Visualization({ data }) {
   const svgRef = useRef();
+  const [tooltipData, setTooltipData] = useState(null); // Tooltip data
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 }); // Tooltip position
+  const hideTimeoutRef = useRef(null); // Ref to store the hide timeout
 
   useEffect(() => {
     const svgWidth = 800;
     const svgHeight = 600;
-    const margin = { top: 20, right: 30, bottom: 50, left: 50 };
+    const margin = { top: 40, right: 30, bottom: 50, left: 50 };
 
     const svg = d3.select(svgRef.current)
       .attr('width', svgWidth)
@@ -44,7 +47,37 @@ function D3Visualization({ data }) {
       .attr('r', d => radiusScale(d.Radius))
       .attr('fill', d => colorScale(d.Cluster))
       .attr('stroke', 'black')
-      .attr('stroke-width', 1);
+      .attr('stroke-width', 1)
+      .on("mouseover", (event, d) => {
+        // Clear any existing timeout to avoid hiding the tooltip
+        clearTimeout(hideTimeoutRef.current);
+        
+        // Set tooltip data and position
+        setTooltipData(d);
+        setTooltipPos({ x: event.pageX, y: event.pageY });
+      })
+      .on("mouseout", () => {
+        // Set a timeout to hide the tooltip after a delay
+        hideTimeoutRef.current = setTimeout(() => {
+          setTooltipData(null); // Hide tooltip
+        }, 300); // Adjust delay as needed (300ms)
+      });
+
+    // Add X-axis line
+    svg.append("line")
+      .attr("x1", margin.left)
+      .attr("y1", svgHeight - margin.bottom)
+      .attr("x2", svgWidth - margin.right)
+      .attr("y2", svgHeight - margin.bottom)
+      .attr("stroke", "black");
+
+    // Add Y-axis line
+    svg.append("line")
+      .attr("x1", margin.left)
+      .attr("y1", margin.top)
+      .attr("x2", margin.left)
+      .attr("y2", svgHeight - margin.bottom)
+      .attr("stroke", "black");
 
     // Clear old labels if any
     svg.selectAll(".axis-label").remove();
@@ -85,9 +118,46 @@ function D3Visualization({ data }) {
       .attr("transform", `rotate(-90, ${margin.left - 30}, ${svgHeight - margin.bottom})`) // Rotate for vertical text
       .text("Supply Chain");
 
+    // Cleanup timeout when component unmounts
+    return () => clearTimeout(hideTimeoutRef.current);
+
   }, [data]);
 
-  return <svg ref={svgRef}></svg>;
+  return (
+    <div style={{ position: "relative" }}>
+      <svg ref={svgRef}></svg>
+      {/* Tooltip */}
+      {tooltipData && (
+        <div
+          style={{
+            position: "absolute",
+            top: tooltipPos.y + 10,
+            left: tooltipPos.x + 10,
+            backgroundColor: "white",
+            border: "1px solid black",
+            padding: "10px",
+            borderRadius: "5px",
+            pointerEvents: "auto",
+            width: "200px",
+            zIndex: 10
+          }}
+          onMouseEnter={() => clearTimeout(hideTimeoutRef.current)} // Prevent hiding when hovering over tooltip
+          onMouseLeave={() => setTooltipData(null)} // Hide tooltip on mouse leave
+        >
+          <strong>
+            <a href={tooltipData.Website} target="_blank" rel="noopener noreferrer">
+              {tooltipData.Entity}
+            </a>
+          </strong>
+          <br />
+          Contact:{" "}
+          <a href={`mailto:${tooltipData["Contact Email"]}`}>
+            {tooltipData.Contact}
+          </a>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default D3Visualization;
