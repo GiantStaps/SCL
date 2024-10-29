@@ -1,6 +1,6 @@
 # SCL Project
 
-## Get Started
+## 3D Visualization (WIP)
 
 ### Install node dependencies
 `cd map && npm install`
@@ -9,13 +9,13 @@
 
 `npm start`
 
-## 2d - Demos
+## 2D demos
 Embedding, Clustering & 2D viz is in jupyter notebooks.
 
-## Insatll Python dependencies
+### Insatll Python dependencies
 
 `poetry install`.
 
-## Running Jupyter Lab
+### Running Jupyter Lab
 
 `jupyter lab`
