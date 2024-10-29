@@ -38,6 +38,10 @@ function D3Visualization({ data }) {
       .domain(radiusExtent)
       .range([3, 15]);
 
+    // Calculate the positions for the zero lines
+    const xZeroPos = xScale(0); // Position of X=0 on the X-axis
+    const yZeroPos = yScale(0); // Position of Y=0 on the Y-axis
+
     // Bind data to circles
     svg.selectAll('circle')
       .data(data)
@@ -49,18 +53,14 @@ function D3Visualization({ data }) {
       .attr('stroke', 'black')
       .attr('stroke-width', 1)
       .on("mouseover", (event, d) => {
-        // Clear any existing timeout to avoid hiding the tooltip
-        clearTimeout(hideTimeoutRef.current);
-        
-        // Set tooltip data and position
-        setTooltipData(d);
-        setTooltipPos({ x: event.pageX, y: event.pageY });
+        clearTimeout(hideTimeoutRef.current); // Cancel hide timeout
+        setTooltipData(d); // Show tooltip
+        setTooltipPos({ x: event.pageX, y: event.pageY }); // Position tooltip
       })
       .on("mouseout", () => {
-        // Set a timeout to hide the tooltip after a delay
         hideTimeoutRef.current = setTimeout(() => {
           setTooltipData(null); // Hide tooltip
-        }, 300); // Adjust delay as needed (300ms)
+        }, 300); // Delay before hiding tooltip
       });
 
     // Add X-axis line
@@ -79,17 +79,29 @@ function D3Visualization({ data }) {
       .attr("y2", svgHeight - margin.bottom)
       .attr("stroke", "black");
 
+    // Add dashed line for X=0
+    svg.append("line")
+      .attr("x1", xZeroPos)
+      .attr("y1", margin.top)
+      .attr("x2", xZeroPos)
+      .attr("y2", svgHeight - margin.bottom)
+      .attr("stroke", "black")
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", "4,4"); // Dashed line
+
+
+
     // Clear old labels if any
     svg.selectAll(".axis-label").remove();
 
-    // Add X-axis labels
+    // Add X-axis labels (Industry on the left, Research on the right)
     svg.append("text")
       .attr("class", "axis-label")
       .attr("x", margin.left) // Left side of X-axis
       .attr("y", svgHeight - margin.bottom + 35) // Below X-axis
       .attr("text-anchor", "start")
       .style("font-size", "14px")
-      .text("Research");
+      .text("Industry");
 
     svg.append("text")
       .attr("class", "axis-label")
@@ -97,9 +109,9 @@ function D3Visualization({ data }) {
       .attr("y", svgHeight - margin.bottom + 35) // Below X-axis
       .attr("text-anchor", "end")
       .style("font-size", "14px")
-      .text("Industry");
+      .text("Research");
 
-    // Add Y-axis labels
+    // Add Y-axis labels (Supply Chain at the top, Sustainability at the bottom)
     svg.append("text")
       .attr("class", "axis-label")
       .attr("x", margin.left - 30) // To the left of Y-axis
@@ -107,7 +119,7 @@ function D3Visualization({ data }) {
       .attr("text-anchor", "middle")
       .style("font-size", "14px")
       .attr("transform", `rotate(-90, ${margin.left - 30}, ${margin.top})`) // Rotate for vertical text
-      .text("Sustainability");
+      .text("Supply Chain");
 
     svg.append("text")
       .attr("class", "axis-label")
@@ -116,7 +128,7 @@ function D3Visualization({ data }) {
       .attr("text-anchor", "middle")
       .style("font-size", "14px")
       .attr("transform", `rotate(-90, ${margin.left - 30}, ${svgHeight - margin.bottom})`) // Rotate for vertical text
-      .text("Supply Chain");
+      .text("Sustainability");
 
     // Cleanup timeout when component unmounts
     return () => clearTimeout(hideTimeoutRef.current);

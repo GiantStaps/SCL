@@ -31,7 +31,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>2D D3.js Visualization</h1>
+      <h1>SCI Partner Landscape</h1>
       <D3Visualization data={data} />
     </div>
   );
