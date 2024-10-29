@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@react-three/fiber": "^8.17.10",
+    "d3": "^7.9.0",
     "papaparse": "^5.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
